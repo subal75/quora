@@ -12,7 +12,6 @@
 
 ```bash
 git clone https://github.com/subal75/quora.git
-cd quora
 
 # Create and activate virtual environment
 python -m venv venv
