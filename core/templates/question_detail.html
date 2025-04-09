@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="question-card card mb-4">
+    <div class="card-body">
+        <h2 class="card-title">{{ object.title }}</h2>
+        <p class="card-text">{{ object.content }}</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+                Asked by {{ object.author.username }} • {{ object.created_at|timesince }} ago
+            </small>
+
+        </div>
+    </div>
+</div>
+
+<div class="answers-section">
+    <h3 class="mb-4">
+        {{ object.answers.count }} Answer{{ object.answers.count|pluralize }}
+    </h3>
+
+    {% for answer in object.answers.all %}
+    <div class="answer-card card mb-3">
+        <div class="card-body">
+            <p class="card-text">{{ answer.content }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    Answered by {{ answer.author.username }} • {{ answer.created_at|timesince }} ago
+                </small>
+                <div>
+                    <form action="{% url 'like-answer' answer.pk %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm {% if user in answer.likes.all %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="bi bi-hand-thumbs-up"></i> {{ answer.total_likes }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">No answers yet. Be the first to answer!</div>
+    {% endfor %}
+</div>
+
+{% if user.is_authenticated %}
+<div class="answer-form card mt-4">
+    <div class="card-body">
+        <h4 class="card-title">Your Answer</h4>
+        <form method="post" action="{% url 'answer-create' object.pk %}">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Post Answer</button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info mt-4">
+    Please <a href="{% url 'login' %}">login</a> to post an answer.
+</div>
+{% endif %}
+{% endblock %}

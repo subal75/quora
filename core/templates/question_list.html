@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Questions{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Questions</h1>
+    <a href="{% url 'question-create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Ask Question
+    </a>
+</div>
+
+<div class="list-group">
+    {% for question in object_list %}
+    <a href="{% url 'question-detail' question.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{ question.title }}</h5>
+            <small class="text-muted">{{ question.created_at|timesince }} ago</small>
+        </div>
+        <p class="mb-1">{{ question.content|truncatechars:150 }}</p>
+        <div class="d-flex justify-content-between">
+            <small>Asked by {{ question.author.username }}</small>
+            <small>{{ question.get_answer_count }} answers</small>
+        </div>
+    </a>
+    {% empty %}
+    <div class="alert alert-info">No questions yet. Be the first to ask!</div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Next</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
